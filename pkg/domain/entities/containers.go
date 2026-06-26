@@ -102,6 +102,9 @@ type StopOptions struct {
 	Ignore  bool
 	Latest  bool
 	Timeout *uint
+	// Signal optionally overrides the container's configured StopSignal for the
+	// graceful stop (the Docker `stop --signal` override). Empty means StopSignal.
+	Signal string
 }
 
 type StopReport struct {

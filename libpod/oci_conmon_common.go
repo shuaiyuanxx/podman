@@ -316,7 +316,7 @@ func (r *ConmonOCIRuntime) killContainer(ctr *Container, signal uint, all, captu
 // after to pull the exit code.
 // IMPORTANT: Thus function is called from an unlocked container state in
 // the stop() code path so do not modify the state here.
-func (r *ConmonOCIRuntime) StopContainer(ctr *Container, timeout uint, all bool) error {
+func (r *ConmonOCIRuntime) StopContainer(ctr *Container, timeout uint, signal uint, all bool) error {
 	logrus.Debugf("Stopping container %s (PID %d)", ctr.ID(), ctr.state.PID)
 
 	// Ping the container to see if it's alive
@@ -366,7 +366,10 @@ func (r *ConmonOCIRuntime) StopContainer(ctr *Container, timeout uint, all bool)
 	}
 
 	if timeout > 0 {
-		stopSignal := ctr.config.StopSignal
+		stopSignal := signal
+		if stopSignal == 0 {
+			stopSignal = ctr.config.StopSignal
+		}
 		if stopSignal == 0 {
 			stopSignal = uint(syscall.SIGTERM)
 		}

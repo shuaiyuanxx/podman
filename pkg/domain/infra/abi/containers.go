@@ -387,7 +387,17 @@ func (ic *ContainerEngine) containerStopImpl(ctx context.Context, namesOrIds []s
 }
 
 func (ic *ContainerEngine) ContainerStop(ctx context.Context, namesOrIds []string, options entities.StopOptions) ([]*entities.StopReport, error) {
-	return ic.containerStopImpl(ctx, namesOrIds, options, func(c *libpod.Container, t uint) error { return c.StopWithTimeout(t) })
+	var sig uint // 0 = use the container's configured StopSignal
+	if options.Signal != "" {
+		s, err := signal.ParseSignalNameOrNumber(options.Signal)
+		if err != nil {
+			return nil, err
+		}
+		sig = uint(s)
+	}
+	return ic.containerStopImpl(ctx, namesOrIds, options, func(c *libpod.Container, t uint) error {
+		return c.StopWithTimeoutAndSignal(t, sig)
+	})
 }
 
 func (ic *ContainerEngine) ContainerStopService(ctx context.Context, namesOrIds []string, options entities.StopOptions) ([]*entities.StopReport, error) {

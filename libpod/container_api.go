@@ -283,24 +283,33 @@ func (c *Container) Stop() error {
 // manually. If timeout is 0, SIGKILL will be used immediately to kill the
 // container.
 func (c *Container) StopWithTimeout(timeout uint) (finalErr error) {
-	return c.StopWithArgs(timeout, true)
+	return c.StopWithArgs(timeout, 0, true)
+}
+
+// StopWithTimeoutAndSignal is like StopWithTimeout but delivers the given signal
+// for the graceful stop instead of the container's configured StopSignal. A
+// signal of 0 means "use the configured StopSignal" (the Docker stop --signal
+// override).
+func (c *Container) StopWithTimeoutAndSignal(timeout uint, signal uint) (finalErr error) {
+	return c.StopWithArgs(timeout, signal, true)
 }
 
 // StopService stops the container without marking it as stopped by user (e.g. for
 // systemd ExecStop). Containers with restart policy unless-stopped will be
 // eligible to start again on next boot.
 func (c *Container) StopService(timeout uint) (finalErr error) {
-	return c.StopWithArgs(timeout, false)
+	return c.StopWithArgs(timeout, 0, false)
 }
 
-// StopWithArgs is a version of Stop that allows a timeout to be specified manually
-// and controls whether to set the StoppedByUser state field. If timeout is 0,
-// SIGKILL will be used immediately to kill the container.
+// StopWithArgs is a version of Stop that allows a timeout and a graceful stop
+// signal to be specified manually, and controls whether to set the StoppedByUser
+// state field. A signal of 0 uses the container's configured StopSignal. If
+// timeout is 0, SIGKILL will be used immediately to kill the container.
 //
 // An explicit stop is treated as a user-driven lifecycle action. Because of
 // that, this path may not trigger automatic restart-policy handling in cleanup,
 // even when stoppedByUser is false.
-func (c *Container) StopWithArgs(timeout uint, stoppedByUser bool) (finalErr error) {
+func (c *Container) StopWithArgs(timeout uint, signal uint, stoppedByUser bool) (finalErr error) {
 	// Have to lock the pod the container is a part of.
 	// This prevents running `podman stop` at the same time a
 	// `podman pod start` is running, which could lead to weird races.
@@ -338,7 +347,7 @@ func (c *Container) StopWithArgs(timeout uint, stoppedByUser bool) (finalErr err
 			return err
 		}
 	}
-	return c.stopInternal(timeout, stoppedByUser)
+	return c.stopInternal(timeout, signal, stoppedByUser)
 }
 
 // Kill sends a signal to a container

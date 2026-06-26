@@ -31,6 +31,12 @@ Command does not fail when *file* is missing and user specified --ignore.
 
 @@option latest
 
+#### **--signal**, **-s**=*signal*
+
+Signal to send to the container for the graceful stop, before the timeout. For
+more information on Linux signals, refer to *signal(7)*. The default is the
+container's stop signal (see **--stop-signal** in **podman-create(1)**).
+
 @@option time
 
 ## EXAMPLES

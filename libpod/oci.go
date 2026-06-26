@@ -44,7 +44,7 @@ type OCIRuntime interface { //nolint:interfacebloat
 	// If all is set, we will attempt to use the --all flag will `kill` in
 	// the OCI runtime to kill all processes in the container, including
 	// exec sessions. This is only supported if the container has cgroups.
-	StopContainer(ctr *Container, timeout uint, all bool) error
+	StopContainer(ctr *Container, timeout uint, signal uint, all bool) error
 	// DeleteContainer deletes the given container from the OCI runtime.
 	DeleteContainer(ctr *Container) error
 	// PauseContainer pauses the given container.

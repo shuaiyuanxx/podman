@@ -70,6 +70,10 @@ func stopFlags(cmd *cobra.Command) {
 	flags.IntVarP(&stopTimeout, timeFlagName, "t", int(containerConfig.Engine.StopTimeout), "Seconds to wait for stop before killing the container")
 	_ = cmd.RegisterFlagCompletionFunc(timeFlagName, completion.AutocompleteNone)
 
+	signalFlagName := "signal"
+	flags.StringVarP(&stopOptions.Signal, signalFlagName, "s", "", "Signal to send for the graceful stop, before the timeout (default: the container's stop signal)")
+	_ = cmd.RegisterFlagCompletionFunc(signalFlagName, common.AutocompleteStopSignal)
+
 	filterFlagName := "filter"
 	flags.StringArrayVarP(&filters, filterFlagName, "f", []string{}, "Filter output based on conditions given")
 	_ = cmd.RegisterFlagCompletionFunc(filterFlagName, common.AutocompletePsFilters)

@@ -150,6 +150,9 @@ func (ic *ContainerEngine) ContainerStop(_ context.Context, namesOrIds []string,
 		idToRawInput[ctrs[i].ID] = rawInputs[i]
 	}
 	options := new(containers.StopOptions).WithIgnore(opts.Ignore)
+	if opts.Signal != "" {
+		options.WithSignal(opts.Signal)
+	}
 	if to := opts.Timeout; to != nil {
 		options.WithTimeout(*to)
 	}

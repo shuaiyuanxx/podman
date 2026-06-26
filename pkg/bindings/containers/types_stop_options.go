@@ -32,6 +32,21 @@ func (o *StopOptions) GetIgnore() bool {
 	return *o.Ignore
 }
 
+// WithSignal set field Signal to given value
+func (o *StopOptions) WithSignal(value string) *StopOptions {
+	o.Signal = &value
+	return o
+}
+
+// GetSignal returns value of field Signal
+func (o *StopOptions) GetSignal() string {
+	if o.Signal == nil {
+		var z string
+		return z
+	}
+	return *o.Signal
+}
+
 // WithTimeout set field Timeout to given value
 func (o *StopOptions) WithTimeout(value uint) *StopOptions {
 	o.Timeout = &value

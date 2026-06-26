@@ -161,6 +161,24 @@ var _ = Describe("Podman stop", func() {
 		Expect(strings.TrimSpace(finalCtrs.OutputToString())).To(Equal(""))
 	})
 
+	It("podman stop container --signal", func() {
+		// The container traps SIGUSR1 and exits 42; --signal must deliver that
+		// instead of the container's default stop signal.
+		ctr := "test-stop-signal"
+		session := podmanTest.Podman([]string{"run", "-d", "--name", ctr, ALPINE, "sh", "-c", "trap 'exit 42' USR1; while :; do sleep 0.1; done"})
+		session.WaitWithDefaultTimeout()
+		Expect(session).Should(ExitCleanly())
+
+		stop := podmanTest.Podman([]string{"stop", "--signal", "SIGUSR1", "-t", "20", ctr})
+		stop.WaitWithDefaultTimeout()
+		Expect(stop).Should(ExitCleanly())
+
+		inspect := podmanTest.Podman([]string{"inspect", ctr, "--format", "{{.State.ExitCode}}"})
+		inspect.WaitWithDefaultTimeout()
+		Expect(inspect).Should(ExitCleanly())
+		Expect(inspect.OutputToString()).To(Equal("42"))
+	})
+
 	It("podman stop container --timeout", func() {
 		session := podmanTest.Podman([]string{"run", "-d", "--name", "test5", ALPINE, "sleep", "100"})
 		session.WaitWithDefaultTimeout()

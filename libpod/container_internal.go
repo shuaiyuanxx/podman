@@ -1375,12 +1375,12 @@ func (c *Container) stopWithAll() bool {
 
 // Internal, non-locking function to stop container
 func (c *Container) stop(timeout uint) error {
-	return c.stopInternal(timeout, true)
+	return c.stopInternal(timeout, 0, true)
 }
 
 // Internal, non-locking function to stop container
 // stoppedByUser controls whether to set the StoppedByUser state field.
-func (c *Container) stopInternal(timeout uint, stoppedByUser bool) error {
+func (c *Container) stopInternal(timeout uint, signal uint, stoppedByUser bool) error {
 	// This is explicit container stop that flows pass through Running -> Stopping -> Stopped/Exited states.
 	// As a result, this does not satisfy the Running/Paused -> Stopped/Exited
 	// transition that is required to trigger restart policy during cleanup.
@@ -1433,7 +1433,7 @@ func (c *Container) stopInternal(timeout uint, stoppedByUser bool) error {
 		c.lock.Unlock()
 	}
 
-	stopErr := c.ociRuntime.StopContainer(c, timeout, all)
+	stopErr := c.ociRuntime.StopContainer(c, timeout, signal, all)
 
 	if !c.batched {
 		c.lock.Lock()
@@ -1502,7 +1502,7 @@ func (c *Container) waitForConmonToExitAndSave() error {
 				// this to get the real exit code... But I'm not
 				// that dedicated.
 				all := c.stopWithAll()
-				if err := c.ociRuntime.StopContainer(c, 0, all); err != nil {
+				if err := c.ociRuntime.StopContainer(c, 0, 0, all); err != nil {
 					logrus.Errorf("Error stopping container %s after Conmon exited prematurely: %v", c.ID(), err)
 				}
 			}

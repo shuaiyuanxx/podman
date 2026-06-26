@@ -248,6 +248,7 @@ type WaitOptions struct {
 //go:generate go run ../generator/generator.go StopOptions
 type StopOptions struct {
 	Ignore  *bool
+	Signal  *string
 	Timeout *uint
 }
 

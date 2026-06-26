@@ -95,7 +95,7 @@ func (r *MissingRuntime) KillContainer(_ *Container, _ uint, _ bool) error {
 }
 
 // StopContainer is not available as the runtime is missing
-func (r *MissingRuntime) StopContainer(_ *Container, _ uint, _ bool) error {
+func (r *MissingRuntime) StopContainer(_ *Container, _ uint, _ uint, _ bool) error {
 	return r.printError()
 }
 
